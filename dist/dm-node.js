@@ -9,7 +9,7 @@ class EventEmitter {
 		const event = this.events[eventName];
 		if( event ) {
 			event.forEach(fn => {
-			fn.call(null, data);
+				fn.call(null, data);
 			});
 		}
 	}
@@ -27,19 +27,12 @@ class EventEmitter {
 }
 
 class ElementHlpr extends EventEmitter {
-	static Target(selector) {
-		let trg = document.querySelector(selector);
-		let el = new ElementHlpr();
-		el.elm = trg;
-
-		return el;
-	}
 
     constructor(options) {
 		super(options);
 		let self = this;
 		
-		// TODO: self._data = null;
+		self._data = null;
 		self._elm = null;
 		self._children = [];      
 
@@ -117,22 +110,42 @@ class ElementHlpr extends EventEmitter {
 		return this;
 	}
 
-	// TODO: data(dataSet) { }
+	data(dataSet) { 
+		var handler = {
+			get: function(obj, prop) {
+				return prop in obj ? obj[prop] : 37;
+			}
+		};
+		this._data = new Proxy(dataSet, handler);
+
+		return this;
+	}
 
 
 }
 
 class Collection extends EventEmitter {
     constructor(options) {
-        super(options);
+		super(options);
 
 		this._myCollection = {};
 		this._key = options.key || "id";
+
+		let self = this;
+		this._rowHandler = {
+			set: function (target, key, val) {
+				let ov = target[key], res = false;
+				if (key in target) { target[key] = val; res = true; }
+				else { res = target.setItem(key, val); }
+				self.emit('update', { type:'change', row: target[self._key], property: key, oldVal: ov, newVal: val });
+				return res;
+			},
+		};
+
 		if (options && options.key && options.data) {
-			let self = this;
 			options.data.forEach(itm => {
 				let keyVal = itm[self._key];
-				self._myCollection[keyVal] = itm;
+				self._myCollection[keyVal] = new Proxy(itm, self._rowHandler);
 			});
 		}
     }
@@ -145,7 +158,8 @@ class Collection extends EventEmitter {
     }
 
 	put(key, value) { 
-		this._myCollection[key] = value; 
+		this._myCollection[key] = new Proxy(value, this._rowHandler); 
+		this.emit('update', { type:'add', row: key });
 	}
 
 	get(key) { 
@@ -154,6 +168,7 @@ class Collection extends EventEmitter {
 
 	remove(key) { 
 		delete this._myCollection[key]; 
+		this.emit('update', { type:'remove', row: key });
 	}
 
 	upsert(key, value) {
@@ -163,9 +178,18 @@ class Collection extends EventEmitter {
 	}
 
 	clear() { 
-		this._myCollection = {}; 
+		this._myCollection = {};
+		this.emit('update', { type:'clear' });
 	}
 
+	forEach(callback){
+		let collection = this._myCollection;
+		let idx = 0;
+		for(var prop in collection){
+			callback(collection[prop], idx);
+			idx++;
+		}
+	}
 	iterator(callback, sort, filter) {
 		var collection = this._myCollection;
 		var res = [];

@@ -7,7 +7,7 @@ class EventEmitter {
 		const event = this.events[eventName];
 		if( event ) {
 			event.forEach(fn => {
-			fn.call(null, data);
+				fn.call(null, data);
 			});
 		}
 	}

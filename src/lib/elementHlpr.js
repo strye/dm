@@ -1,19 +1,12 @@
 import EventEmitter from "./eventEmitter.js";
 
 class ElementHlpr extends EventEmitter {
-	static Target(selector) {
-		let trg = document.querySelector(selector);
-		let el = new ElementHlpr();
-		el.elm = trg
-
-		return el;
-	}
 
     constructor(options) {
 		super(options)
 		let self = this;
 		
-		// TODO: self._data = null;
+		self._data = null;
 		self._elm = null;
 		self._children = [];      
 
@@ -93,7 +86,16 @@ class ElementHlpr extends EventEmitter {
 		return this;
 	}
 
-	// TODO: data(dataSet) { }
+	data(dataSet) { 
+		var handler = {
+			get: function(obj, prop) {
+				return prop in obj ? obj[prop] : 37;
+			}
+		};
+		this._data = new Proxy(dataSet, handler);
+
+		return this;
+	}
 
 
 }
