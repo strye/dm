@@ -60,7 +60,16 @@ class ElementHlpr extends EventEmitter {
 
 	text(val) {
 		this._elm.innerText = val;
+		return this;
+	}
 
+	prop(name, value) {
+		this._elm[name] = value;
+		return this;
+	}
+
+	exec(method) {
+		method(this._elm);
 		return this;
 	}
 
