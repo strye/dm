@@ -67,23 +67,10 @@ class Collection extends EventEmitter {
 		}
 	}
 	iterator(callback, sort, filter) {
-		var collection = this._myCollection;
-		var res = [];
-		for(var prop in collection){
-			var record = collection[prop];
-			if (filter) {
-				if (record[filter.field] === filter.criteria) res.push(record);
-			} else {
-				res.push(record);
-			}
-		}
-		if (sort) {
-			res.sort(function(a,b) {
-				if (a[sort] < b[sort]) return -1;
-				if (a[sort] > b[sort]) return 1;
-				return 0;
-			});
-		}
+		let res = [];
+		if (filter) res = this.filteredArray(filter.field, filter.criteria, sort);
+		else res = this.toArray(sort);
+
 		res.forEach((item, idx) => {
 			callback(item, idx);
 		});
