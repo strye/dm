@@ -2,7 +2,7 @@ import ElementHlpr from "./lib/elementHlpr.js";
 import Collection from "./lib/collection.js";
 
 class DM {
-	static Target(selector) {
+	static Target(target) {
         let el = new ElementHlpr();
         if (target instanceof Element || target instanceof HTMLDocument) {
             el.elm = target;

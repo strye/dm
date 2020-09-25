@@ -262,7 +262,7 @@ class Collection extends EventEmitter {
 }
 
 class DM {
-	static Target(selector) {
+	static Target(target) {
         let el = new ElementHlpr();
         if (target instanceof Element || target instanceof HTMLDocument) {
             el.elm = target;
