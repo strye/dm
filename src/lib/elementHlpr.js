@@ -58,6 +58,7 @@ class ElementHlpr extends EventEmitter {
 		return this;
 	}
 
+
 	text(val) {
 		this._elm.innerText = val;
 		return this;
@@ -70,6 +71,10 @@ class ElementHlpr extends EventEmitter {
 
 	exec(method) {
 		method(this._elm);
+		return this;
+	}
+	listen(eventName, action) {
+		this._elm.addEventListener(eventName, action);
 		return this;
 	}
 

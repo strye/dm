@@ -52,9 +52,6 @@ class ElementHlpr extends EventEmitter {
 					}
 				}
 				break;
-			default:
-				// Error
-				break;
 		}
 
 		if (typeof(options) === "string") {
@@ -80,9 +77,23 @@ class ElementHlpr extends EventEmitter {
 		return this;
 	}
 
+
 	text(val) {
 		this._elm.innerText = val;
+		return this;
+	}
 
+	prop(name, value) {
+		this._elm[name] = value;
+		return this;
+	}
+
+	exec(method) {
+		method(this._elm);
+		return this;
+	}
+	listen(eventName, action) {
+		this._elm.addEventListener(eventName, action);
 		return this;
 	}
 
@@ -189,23 +200,10 @@ class Collection extends EventEmitter {
 		}
 	}
 	iterator(callback, sort, filter) {
-		var collection = this._myCollection;
-		var res = [];
-		for(var prop in collection){
-			var record = collection[prop];
-			if (filter) {
-				if (record[filter.field] === filter.criteria) res.push(record);
-			} else {
-				res.push(record);
-			}
-		}
-		if (sort) {
-			res.sort(function(a,b) {
-				if (a[sort] < b[sort]) return -1;
-				if (a[sort] > b[sort]) return 1;
-				return 0;
-			});
-		}
+		let res = [];
+		if (filter) res = this.filteredArray(filter.field, filter.criteria, sort);
+		else res = this.toArray(sort);
+
 		res.forEach((item, idx) => {
 			callback(item, idx);
 		});
