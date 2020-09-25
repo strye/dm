@@ -16,28 +16,32 @@ class ElementHlpr extends EventEmitter {
 					self._elm = document.createElement(options);
 				break;
 			case "object":
-				self._elm = document.createElement(options.name);
-				if (options.attrs) {
-					for (const atr in options.attrs) {
-						self.attr(atr, options.attrs[atr]);
-					}
-				}
-				if (options.styles) {
-					for (const styl in options.styles) {
-						self.style([styl], options.styles[styl]);
-					}
-				}
+                if (options instanceof Element || options instanceof HTMLDocument) {
+                    self._elm = options;
+                } else {
+                    self._elm = document.createElement(options.name);
+                    if (options.attrs) {
+                        for (const atr in options.attrs) {
+                            self.attr(atr, options.attrs[atr]);
+                        }
+                    }
+                    if (options.styles) {
+                        for (const styl in options.styles) {
+                            self.style([styl], options.styles[styl]);
+                        }
+                    }
+                }
 				break;
 			default:
 				// Error
 				break;
 		}
 
-		if (typeof(options) === "string") {
-			this._elm = document.createElement(options);
-		} else if (typeof(options) === "object") {
+		// if (typeof(options) === "string") {
+		// 	this._elm = document.createElement(options);
+		// } else if (typeof(options) === "object") {
 
-		}
+		// }
 
 	}
 	get elm() { return this._elm; }

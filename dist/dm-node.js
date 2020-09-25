@@ -42,23 +42,29 @@ class ElementHlpr extends EventEmitter {
 					self._elm = document.createElement(options);
 				break;
 			case "object":
-				self._elm = document.createElement(options.name);
-				if (options.attrs) {
-					for (const atr in options.attrs) {
-						self.attr(atr, options.attrs[atr]);
-					}
-				}
-				if (options.styles) {
-					for (const styl in options.styles) {
-						self.style([styl], options.styles[styl]);
-					}
-				}
+                if (options instanceof Element || options instanceof HTMLDocument) {
+                    self._elm = options;
+                } else {
+                    self._elm = document.createElement(options.name);
+                    if (options.attrs) {
+                        for (const atr in options.attrs) {
+                            self.attr(atr, options.attrs[atr]);
+                        }
+                    }
+                    if (options.styles) {
+                        for (const styl in options.styles) {
+                            self.style([styl], options.styles[styl]);
+                        }
+                    }
+                }
 				break;
 		}
 
-		if (typeof(options) === "string") {
-			this._elm = document.createElement(options);
-		}
+		// if (typeof(options) === "string") {
+		// 	this._elm = document.createElement(options);
+		// } else if (typeof(options) === "object") {
+
+		// }
 
 	}
 	get elm() { return this._elm; }
@@ -259,10 +265,13 @@ class Collection extends EventEmitter {
 
 class DM {
 	static Target(selector) {
-		let trg = document.querySelector(selector);
-		let el = new ElementHlpr();
-		el.elm = trg;
-
+        let el = new ElementHlpr();
+        if (target instanceof Element || target instanceof HTMLDocument) {
+            el.elm = target;
+        } else {
+            let trg = document.querySelector(target);
+            el.elm = trg;    
+        }
 		return el;
 	}
 	static Collection(data, key) {
