@@ -43,6 +43,12 @@ class ElementHlpr extends EventEmitter {
 	get elm() { return this._elm; }
 	set elm(val) { this._elm = val; }
 	
+	clear() {
+		this._elm.innerHTML = "";
+		this._elm.innerText = "";
+		return this;
+	}
+
 	attr(name, value) {
 		this._elm.setAttribute(name, value);
 		return this;
