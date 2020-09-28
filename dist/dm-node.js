@@ -103,7 +103,7 @@ class ElementHlpr extends EventEmitter {
 	}
 
 	exec(method) {
-		method(this._elm);
+		method(this);
 		return this;
 	}
 	listen(eventName, action) {
