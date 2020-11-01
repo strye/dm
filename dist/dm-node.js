@@ -263,6 +263,210 @@ class Collection extends EventEmitter {
 
 }
 
+/*
+sample schema {
+    'id': {name: 'id', type: "int", required: false, canEdit: false},
+    'TI': {name: 'TI', type: "text", required: true, canEdit: true}
+}
+*/
+class DataRow extends EventEmitter {
+    constructor(schema, values = {}) {
+		super();
+		// Need to rebuild the schema to break reference?
+		this._fieldSchema = schema;
+		this._fieldValues = {};
+		
+        for (const fld in this._fieldSchema) {
+			let field = {};
+            field.value = values[fld] || null;
+			field.originalValue = field.value;
+			this._fieldValues[fld] = field;
+        }
+    }
+    get schema() { return this._fieldSchema; }
+    set schema(val) { this._fieldSchema = val; }
+    get fields() { return this._fieldValues; }
+    get values() {
+        let res = {};
+        for (const key in this._fieldSchema) {
+            res[key] = this._fieldValues[key].value;
+        }
+        return res;     
+    }
+
+    updateRow(values, reset = false) {
+        for (const fld in values) {
+            this._fieldValues[fld].value = values[fld];
+            if (reset) this._fieldValues[fld].originalValue = values[fld];
+        }
+    }
+    updateField(field, value, reset = false) {
+        this._fieldValues[field].value = value;
+        if (reset) this._fieldValues[fld].originalValue = value;
+	};
+    resetRow() {
+        for (const fld in this._fieldValues) {
+            this._fieldValues[fld].value === this._fieldValues[fld].originalValue;
+        }
+    }
+    resetField(field) {
+        this._fieldValues[field].value === this._fieldValues[field].originalValue;
+    }
+
+    rowDirty(){
+        let self = this, dirty = false;
+        for (const fld in self._fieldValues) {
+            let field = self._fieldValues[fld];
+            if (field.value !== field.originalValue) dirty = true;
+        }
+        return dirty;
+    }
+    fieldDirty(field){
+        return (this._fieldValues[field].value !== this._fieldValues[field].originalValue);
+    }
+
+	getField(name) { return this._fieldValues[name].value}
+    select(fields) {
+        if (Array.isArray(fields)) {
+            let res = {};
+            fields.forEach(fld => {
+                res[fld] = this._fieldValues[fld].value;            
+            });
+            return res;     
+        } else {return this.values;}
+    }
+
+    passFilter(filter) {
+        let res = true;
+        for(var prop in filter) {
+            if (this._fieldValues[prop].value !== filter[prop]) res = false;
+        }
+        return res;
+    }
+}
+
+class DataQuery {
+    constructor(setCollection) {
+        this._setColl = setCollection;
+        this._selectFlds = false;
+        this._setArray = [];
+        this._resultKeys = {};
+    }
+
+    select(fields) {
+        for (const key in this._setColl) {
+            this._resultKeys[key] = true;
+        }
+        if (fields) this._selectFlds = fields;
+        return this;
+    }
+    filter(criteria) {
+        this._resultKeys = {};
+		for(let key in this._setColl){
+			if (this._setColl[key].passFilter(criteria)) {
+				this._resultKeys[key] = true;
+			}
+		}
+    }
+    toArray() {
+        this._setArray = [];
+        for(const key in this._resultKeys){
+			this._setArray.push(this._setColl[key].select(this._selectFlds));
+		}
+        return this;
+    }
+    sort(criteria) {
+        // let crit = { field2: 1, field1: -1 }
+        this._setArray.sort(function(a,b) {
+            let sortFields = Object.keys(criteria);
+            
+            let retVal = null;
+            sortFields.forEach((fld, idx) => {
+                let dir = criteria[fld];
+                if (retVal === null) {
+                    if (a[fld] < b[fld]) { retVal=(-1 * dir); }
+                    if (a[fld] > b[fld]) { retVal=(1 * dir); }    
+                }
+                if (retVal) return retVal;
+                if ((idx+1) >= sortFields.length) retVal= 0;
+                return retVal;
+            });
+            return retVal
+        });
+        return this;
+    }
+    limit(count) {
+        let tmpAry = [];
+        let max = (count < this._setArray.length) ? this._setArray.length : count;
+        for (let index = 0; index < max; index++) {
+            tmpAry.push(this._setArray[index]);
+        }
+        this._setArray = [];
+        this._setArray = tmpAry;
+    }
+    result() {
+		if (this._setArray.length <= 0 && Object.keys(this._resultKeys).length > 0) this.toArray();
+        return this._setArray;
+    }
+    iterator(callback) {
+		this._setArray.forEach((item, idx) => {
+			callback(item, idx);
+		});
+    }
+}
+
+class DataSet {
+    constructor(schema, data) {
+        this._schema = schema;
+        this._mySet = {};       
+        
+        if (data) {
+            data.forEach(row => {
+				let key = row[this._schema.keyField];
+				this.put(key, row);
+			},this);
+		}
+    }
+    get keyField() { return this._schema.keyField }
+    get schema() { return this._schema }
+    get size() { return Object.keys(this._mySet).length }
+
+    hasRow(key) { return ("undefined" !== typeof(this._mySet[key])) }
+    
+    // Create
+    put(key, values) {
+        this._mySet[key] = new DataRow(this._schema.fields, values);
+    };
+
+    // Read
+    select(fields) {
+        let query = new DataQuery(this._mySet);
+        return query.select(fields);
+    }
+    getRow(key) { return (this.hasRow(key) ? this._mySet[key].values : {}) }
+    getRowWithSchema(key) { return (this.hasRow(key) ? this._mySet[key] : {}) }
+
+    // Update
+    update(rows, upsert = true) {
+        rows.forEach(row => {
+            let key = row[this._schema.keyField];
+            this.updateRow(key,row,upsert);
+        }, this);
+    }
+    updateRow(key, value, upsert = false) {
+        if (this.hasKey(key)) {
+            this._mySet[key].updateRow(value);
+        } else if (upsert) {
+            this.put(key,value);
+        }
+    }
+
+    // Delete
+	delete(key) { delete this._mySet[key]; };
+	clear() { this._mySet = {}; };
+
+}
+
 class DM {
 	static Target(target) {
         let el = new ElementHlpr();
@@ -276,6 +480,9 @@ class DM {
 	}
 	static Collection(data, key) {
 		return new Collection({data: data , key: key})
+	}
+	static DataSet(dataSchema, data) {
+		return new DataSet(dataSchema, data)
 	}
 
 }

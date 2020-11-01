@@ -1,5 +1,6 @@
 import ElementHlpr from "./lib/elementHlpr.js";
 import Collection from "./lib/collection.js";
+import DataSet from "./lib/dataSet.js";
 
 class DM {
 	static Target(target) {
@@ -14,6 +15,9 @@ class DM {
 	}
 	static Collection(data, key) {
 		return new Collection({data: data , key: key})
+	}
+	static DataSet(dataSchema, data) {
+		return new DataSet(dataSchema, data)
 	}
 
 }
