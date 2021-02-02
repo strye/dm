@@ -145,51 +145,26 @@ class ElementHlpr extends EventEmitter {
 
 }
 
-class Collection extends EventEmitter {
-    constructor(options) {
-		super(options);
-
+class BaseCollection extends EventEmitter {
+    constructor() {
 		this._myCollection = {};
-		this._key = options.key || "id";
-
-		let self = this;
-		this._rowHandler = {
-			set: function (target, key, val) {
-				let ov = target[key], res = false;
-				if (key in target) { target[key] = val; res = true; }
-				else { res = target.setItem(key, val); }
-				self.emit('update', { type:'change', row: target[self._key], property: key, oldVal: ov, newVal: val });
-				return res;
-			},
-		};
-
-		if (options && options.key && options.data) {
-			options.data.forEach(itm => {
-				let keyVal = itm[self._key];
-				self._myCollection[keyVal] = new Proxy(itm, self._rowHandler);
-			});
-		}
     }
 	get size() { return Object.keys(this._myCollection).length; }
-    //size() { return Object.keys(this._myCollection).length; };
 
 	hasKey(key) {
-        //return this._myCollection.hasOwnProperty(key)
         return ("undefined" !== typeof(this._myCollection[key]))
     }
 
 	put(key, value) { 
-		this._myCollection[key] = new Proxy(value, this._rowHandler); 
-		this.emit('update', { type:'add', row: key });
+		this._myCollection[key] = value;
+		this.emit('update', { type:'add', rowId: key });
 	}
 
-	get(key) { 
-		return this._myCollection[key]; 
-	}
+	get(key) { return this._myCollection[key]; }
 
 	remove(key) { 
 		delete this._myCollection[key]; 
-		this.emit('update', { type:'remove', row: key });
+		this.emit('update', { type:'remove', rowId: key });
 	}
 
 	upsert(key, value) {
@@ -258,6 +233,39 @@ class Collection extends EventEmitter {
 	}
 
 
+
+}
+
+class Collection extends BaseCollection {
+    constructor(key = 'id', data = null) {
+		super();
+
+		this._myCollection = {};
+		this._key = key;
+
+		let self = this;
+		this._rowHandler = {
+			set: (target, key, val) => {
+				let ov = target[key], res = false;
+				if (key in target) { target[key] = val; res = true; }
+				else { res = target.setItem(key, val); }
+				self.emit('update', { type:'change', row: target[self._key], property: key, oldVal: ov, newVal: val });
+				return res;
+			},
+		};
+
+		if (data && data.length > 0) {
+			data.forEach(itm => {
+				let keyVal = itm[self._key];
+				self._myCollection[keyVal] = new Proxy(itm, self._rowHandler);
+			});
+		}
+    }
+
+	put(key, value) { 
+		this._myCollection[key] = new Proxy(value, this._rowHandler); 
+		this.emit('update', { type:'add', row: key });
+	}
 
 }
 
@@ -479,9 +487,11 @@ class DM {
 	static Collection(data, key) {
 		return new Collection({data: data , key: key})
 	}
+	static get BaseCollection() { return BaseCollection; }
 	static DataSet(dataSchema, data) {
 		return new DataSet(dataSchema, data)
 	}
+	static get EventEmitter() { return EventEmitter; }
 
 }
 

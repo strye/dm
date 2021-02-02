@@ -1,6 +1,8 @@
 import ElementHlpr from "./lib/elementHlpr.js";
 import Collection from "./lib/collection.js";
+import BaseCollection from './lib/baseCollection.js';
 import DataSet from "./lib/dataSet.js";
+import EventEmitter from "./lib/eventEmitter.js"
 
 class DM {
 	static Target(target) {
@@ -16,9 +18,11 @@ class DM {
 	static Collection(data, key) {
 		return new Collection({data: data , key: key})
 	}
+	static get BaseCollection() { return BaseCollection; }
 	static DataSet(dataSchema, data) {
 		return new DataSet(dataSchema, data)
 	}
+	static get EventEmitter() { return EventEmitter; }
 
 }
 const domutil = {
