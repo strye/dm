@@ -15,14 +15,17 @@ class DM {
         }
 		return el;
 	}
-	static Collection(data, key) {
-		return new Collection({data: data , key: key})
-	}
+	static get EventEmitter() { return EventEmitter; }
+	static get Collection() { return Collection; }
 	static get BaseCollection() { return BaseCollection; }
-	static DataSet(dataSchema, data) {
+	static get DataSet() { return DataSet;
+	}
+	static NewCollection() { 
+		return new Collection(key, data)
+	}
+	static NewDataSet(dataSchema, data) {
 		return new DataSet(dataSchema, data)
 	}
-	static get EventEmitter() { return EventEmitter; }
 
 }
 const domutil = {

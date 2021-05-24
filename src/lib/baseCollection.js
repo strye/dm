@@ -2,6 +2,7 @@ import EventEmitter from "./eventEmitter.js";
 
 class BaseCollection extends EventEmitter {
     constructor() {
+		super();
 		this._myCollection = {};
     }
 	get size() { return Object.keys(this._myCollection).length; }
@@ -16,6 +17,15 @@ class BaseCollection extends EventEmitter {
 	}
 
 	get(key) { return this._myCollection[key]; }
+
+	clone(key) { 
+		let row = this._myCollection[key],
+		clone = {}
+		for(var fld in row){
+			clone[fld] = row[fld]
+		}
+		return clone;
+	}
 
 	remove(key) { 
 		delete this._myCollection[key]; 
@@ -86,7 +96,6 @@ class BaseCollection extends EventEmitter {
 			return res;
 		}
 	}
-
 
 
 }

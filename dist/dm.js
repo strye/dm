@@ -147,6 +147,7 @@ class ElementHlpr extends EventEmitter {
 
 class BaseCollection extends EventEmitter {
     constructor() {
+		super();
 		this._myCollection = {};
     }
 	get size() { return Object.keys(this._myCollection).length; }
@@ -161,6 +162,15 @@ class BaseCollection extends EventEmitter {
 	}
 
 	get(key) { return this._myCollection[key]; }
+
+	clone(key) { 
+		let row = this._myCollection[key],
+		clone = {};
+		for(var fld in row){
+			clone[fld] = row[fld];
+		}
+		return clone;
+	}
 
 	remove(key) { 
 		delete this._myCollection[key]; 
@@ -231,7 +241,6 @@ class BaseCollection extends EventEmitter {
 			return res;
 		}
 	}
-
 
 
 }
@@ -484,14 +493,17 @@ class DM {
         }
 		return el;
 	}
-	static Collection(data, key) {
-		return new Collection({data: data , key: key})
-	}
+	static get EventEmitter() { return EventEmitter; }
+	static get Collection() { return Collection; }
 	static get BaseCollection() { return BaseCollection; }
-	static DataSet(dataSchema, data) {
+	static get DataSet() { return DataSet;
+	}
+	static NewCollection() { 
+		return new Collection(key, data)
+	}
+	static NewDataSet(dataSchema, data) {
 		return new DataSet(dataSchema, data)
 	}
-	static get EventEmitter() { return EventEmitter; }
 
 }
 
