@@ -18,6 +18,15 @@ class BaseCollection extends EventEmitter {
 
 	get(key) { return this._myCollection[key]; }
 
+	clone(key) { 
+		let row = this._myCollection[key],
+		clone = {}
+		for(var fld in row){
+			clone[fld] = row[fld]
+		}
+		return clone;
+	}
+
 	remove(key) { 
 		delete this._myCollection[key]; 
 		this.emit('update', { type:'remove', rowId: key })
@@ -87,7 +96,6 @@ class BaseCollection extends EventEmitter {
 			return res;
 		}
 	}
-
 
 
 }
