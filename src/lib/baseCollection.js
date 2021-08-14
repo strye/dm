@@ -2,6 +2,7 @@ import EventEmitter from "./eventEmitter.js";
 
 class BaseCollection extends EventEmitter {
     constructor() {
+		super();
 		this._myCollection = {};
     }
 	get size() { return Object.keys(this._myCollection).length; }

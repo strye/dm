@@ -132,6 +132,14 @@ class ElementHlpr extends EventEmitter {
 
 		return this;
 	}
+	byId(target) {
+		let elm2r = this._elm.querySelector("#"+target);
+		return new ElementHlpr(elm2r);
+	}
+	parent() {
+		let elm2r = this._elm.parent;
+		return new ElementHlpr(elm2r);
+	}
 
 	data(dataSet) { 
 		var handler = {
@@ -149,6 +157,7 @@ class ElementHlpr extends EventEmitter {
 
 class BaseCollection extends EventEmitter {
     constructor() {
+		super();
 		this._myCollection = {};
     }
 	get size() { return Object.keys(this._myCollection).length; }
