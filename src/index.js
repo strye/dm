@@ -1,5 +1,6 @@
 import ElementHlpr from "./lib/elementHlpr.js";
 import Collection from "./lib/collection.js";
+import QueryCollection from "./lib/queryCollection.js";
 import BaseCollection from './lib/baseCollection.js';
 import DataSet from "./lib/dataSet.js";
 import EventEmitter from "./lib/eventEmitter.js"
@@ -17,6 +18,7 @@ class DM {
 	}
 	static get EventEmitter() { return EventEmitter; }
 	static get Collection() { return Collection; }
+	static get QueryCollection() { return QueryCollection; }
 	static get BaseCollection() { return BaseCollection; }
 	static get DataSet() { return DataSet;
 	}

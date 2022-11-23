@@ -288,6 +288,44 @@ class Collection extends BaseCollection {
 
 }
 
+class QueryCollection extends BaseCollection {
+    // constructor() {
+	// 	super()
+    // }
+
+	queryArray(filter, sortField) {
+		let collection = this._myCollection,
+		res = [];
+		for (const key in collection) {
+			if (this._passFilter(collection[key], filter)) {
+				res.push(collection[key]);
+			}
+		}
+		if (sortField) {
+			return res.sort(function(a,b) {
+				if (a[sortField] < b[sortField]) return -1;
+				if (a[sortField] > b[sortField]) return 1;
+				return 0;
+			});
+		} else {
+			return res;
+		}
+	}
+
+	_passFilter(row, filter) {
+        let res = true;
+        for(var prop in filter) {
+            if (row[prop].value !== filter[prop]) res = false;
+        }
+        return res;
+    }
+
+
+
+
+
+}
+
 /*
 sample schema {
     'id': {name: 'id', type: "int", required: false, canEdit: false},
@@ -505,6 +543,7 @@ class DM {
 	}
 	static get EventEmitter() { return EventEmitter; }
 	static get Collection() { return Collection; }
+	static get QueryCollection() { return QueryCollection; }
 	static get BaseCollection() { return BaseCollection; }
 	static get DataSet() { return DataSet;
 	}
