@@ -528,6 +528,47 @@ class DataSet {
 
 }
 
+class WiredHTMLElement extends HTMLElement {
+	constructor() {
+		super();
+		this._events = {};
+	}
+	emit(eventName, data) {
+		const event = this._events[eventName];
+		if( event ) {
+			event.forEach(fn => {
+				fn.call(null, data);
+			});
+		}
+	}
+	
+	subscribe(eventName, fn) {
+		if(!this._events[eventName]) {
+			this._events[eventName] = [];
+		}
+	  
+		this._events[eventName].push(fn);
+		return () => {
+			this._events[eventName] = this._events[eventName].filter(eventFn => fn !== eventFn);
+		}
+	}
+
+
+
+	render() {}
+
+	connectedCallback() {
+		this.render();
+	}
+
+	setAtProp(attrName, val) {
+		if (val) { this.setAttribute(attrName, val); }
+		else { this.removeAttribute(attrName); }
+		this.render();
+	}
+
+}  // END WiredHTMLElement
+
 class DM {
 	static Target(target) {
         let el = new ElementHlpr();
@@ -540,6 +581,7 @@ class DM {
 		return el;
 	}
 	static get EventEmitter() { return EventEmitter; }
+	static get WiredHTMLElement() {return WiredHTMLElement}
 	static get Collection() { return Collection; }
 	static get QueryCollection() { return QueryCollection; }
 	static get BaseCollection() { return BaseCollection; }
