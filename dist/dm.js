@@ -572,7 +572,7 @@ class WiredHTMLElement extends HTMLElement {
 class DM {
 	static Target(target) {
         let el = new ElementHlpr();
-        if (target instanceof Element || target instanceof HTMLDocument) {
+        if (target instanceof Element || target instanceof Document) {
             el.elm = target;
         } else {
             let trg = document.querySelector(target);
@@ -580,20 +580,12 @@ class DM {
         }
 		return el;
 	}
-	static get EventEmitter() { return EventEmitter; }
-	static get WiredHTMLElement() {return WiredHTMLElement}
-	static get Collection() { return Collection; }
-	static get QueryCollection() { return QueryCollection; }
-	static get BaseCollection() { return BaseCollection; }
-	static get DataSet() { return DataSet;
-	}
 	static NewCollection() { 
 		return new Collection(key, data)
 	}
 	static NewDataSet(dataSchema, data) {
 		return new DataSet(dataSchema, data)
 	}
-
 }
 
-export { DM as default };
+export { BaseCollection, Collection, DM, EventEmitter, QueryCollection, WiredHTMLElement };
