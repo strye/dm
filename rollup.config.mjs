@@ -4,11 +4,11 @@ export default {
   
 	output: [
 		{ // required (can be an array, for multiple outputs)
-			file: './dist/9dutil.js',
+			file: './dist/dm.js',
 			format: 'esm', // required
 		},
 		{ // required (can be an array, for multiple outputs)
-			file: './dist/9dutil-node.js',
+			file: './dist/dm-node.js',
 			format: 'cjs', // required
 		},
 	]
