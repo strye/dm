@@ -1,6 +1,6 @@
-import BaseCollection from './baseCollection.js';
+import Collection from './collection.js';
 
-class QueryCollection extends BaseCollection {
+class QueryCollection extends Collection {
     // constructor() {
 	// 	super()
     // }

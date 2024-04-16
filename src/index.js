@@ -1,8 +1,7 @@
 import ElementHlpr from "./lib/elementHlpr.js";
 import Collection from "./lib/collection.js";
 import QueryCollection from "./lib/queryCollection.js";
-import BaseCollection from './lib/baseCollection.js';
-import DataSet from "./lib/dataSet.js";
+import ManagedCollection from './lib/managedCollection.js';
 import WiredHTMLElement from "./lib/wiredHTMLElement.js";
 import EventEmitter from "./lib/eventEmitter.js"
 
@@ -17,24 +16,16 @@ class DM {
         }
 		return el;
 	}
-	static NewCollection() { 
-		return new Collection(key, data)
-	}
-	static NewDataSet(dataSchema, data) {
-		return new DataSet(dataSchema, data)
-	}
 }
-const domutil = {
-	select(selector) {},
-	selectAll(selector) {},
-	append(elementName) {},
-	remove(selector) {},
-	data(data) {},
-	attr() {},
-	style() {},
-	element() {},
-	element() {},
-	element() {},
-}
+// const domutil = {
+// 	select(selector) {},
+// 	selectAll(selector) {},
+// 	append(elementName) {},
+// 	remove(selector) {},
+// 	data(data) {},
+// 	attr() {},
+// 	style() {},
+// 	element() {},
+// }
 
-export {DM, EventEmitter, WiredHTMLElement, Collection, QueryCollection, BaseCollection }
+export {DM, EventEmitter, WiredHTMLElement, Collection, ManagedCollection, QueryCollection }

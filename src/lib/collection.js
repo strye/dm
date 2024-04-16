@@ -1,35 +1,102 @@
-import BaseCollection from './baseCollection.js';
+import EventEmitter from "./eventEmitter.js";
 
-class Collection extends BaseCollection {
-    constructor(key = 'id', data = null) {
-		super()
-
+class Collection extends EventEmitter {
+    constructor() {
+		super();
 		this._myCollection = {};
-		this._key = key;
+    }
+	get size() { return Object.keys(this._myCollection).length; }
 
-		let self = this;
-		this._rowHandler = {
-			set: (target, key, val) => {
-				let ov = target[key], res = false;
-				if (key in target) { target[key] = val; res = true; }
-				else { res = target.setItem(key, val); }
-				self.emit('update', { type:'change', row: target[self._key], property: key, oldVal: ov, newVal: val })
-				return res;
-			},
-		};
-
-		if (data && data.length > 0) {
-			data.forEach(itm => {
-				let keyVal = itm[self._key];
-				self._myCollection[keyVal] = new Proxy(itm, self._rowHandler);
-			});
-		}
+	hasKey(key) {
+        return ("undefined" !== typeof(this._myCollection[key]))
     }
 
 	put(key, value) { 
-		this._myCollection[key] = new Proxy(value, this._rowHandler); 
-		this.emit('update', { type:'add', row: key })
+		this._myCollection[key] = value;
+		this.emit('update', { type:'add', rowId: key })
 	}
+
+	get(key) { return this._myCollection[key]; }
+
+	clone(key) { 
+		let row = this._myCollection[key],
+		clone = {}
+		for(var fld in row){
+			clone[fld] = row[fld]
+		}
+		return clone;
+	}
+
+	remove(key) { 
+		delete this._myCollection[key]; 
+		this.emit('update', { type:'remove', rowId: key })
+	}
+
+	upsert(key, value) {
+		for(var prop in value){
+			this._myCollection[key][prop] = value[prop];
+		}
+	}
+
+	clear() { 
+		this._myCollection = {}
+		this.emit('update', { type:'clear' })
+	}
+
+	forEach(callback){
+		let collection = this._myCollection;
+		let idx = 0;
+		for(var prop in collection){
+			callback(collection[prop], idx);
+			idx++;
+		}
+	}
+	iterator(callback, sort, filter) {
+		let res = [];
+		if (filter) res = this.filteredArray(filter.field, filter.criteria, sort);
+		else res = this.toArray(sort);
+
+		res.forEach((item, idx) => {
+			callback(item, idx);
+		});
+	}
+
+	toArray(sortField) {
+		var collection = this._myCollection;
+		var res = [];
+		for(var prop in collection){
+			res.push(collection[prop]);
+		}
+		if (sortField) {
+			return res.sort(function(a,b) {
+				if (a[sortField] < b[sortField]) return -1;
+				if (a[sortField] > b[sortField]) return 1;
+				return 0;
+			});
+		} else {
+			return res;
+		}
+	}
+
+	filteredArray(criteria, value, sortField) {
+		var collection = this._myCollection;
+		var res = [];
+		for(var prop in collection){
+			if (collection[prop][criteria] === value) {
+				res.push(collection[prop]);
+			}
+		}
+		if (sortField) {
+			return res.sort(function(a,b) {
+				if (a[sortField] < b[sortField]) return -1;
+				if (a[sortField] > b[sortField]) return 1;
+				return 0;
+			});
+		} else {
+			return res;
+		}
+	}
+
 
 }
 
