@@ -24,6 +24,16 @@ class WiredHTMLElement extends HTMLElement {
 		}
 	}
 
+	raiseEvent(eventName, data = {}) {
+		let event = new CustomEvent(eventName, {
+			bubbles: true,
+			cancelable: true,
+			composed: true,
+			detail: data
+		});
+		return this.dispatchEvent(event);
+	}
+
 
 
 	render() {}
